@@ -1,0 +1,80 @@
+/* File: assets/css/style.css (Versi Baru) */
+
+/* 1. Pengaturan Font Global & Latar Belakang */
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #f8f9fa; /* Abu-abu sangat muda, bersih */
+    color: #212529; /* Hitam lembut */
+}
+
+/* 2. Hirarki Tipografi yang Jelas */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 800; /* Judul yang kuat dan tegas */
+}
+
+/* 3. Desain Kartu (Card) yang Minimalis */
+.card {
+    border: none; /* Hilangkan border kasar */
+    border-radius: 12px; /* Sudut lebih melengkung, lebih lembut */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); /* Bayangan halus untuk efek melayang */
+    padding: 1rem;
+}
+
+/* 4. Tombol yang Lebih Profesional */
+.btn {
+    font-weight: 600; /* Sedikit tebal, tapi tidak berlebihan */
+    border-radius: 8px;
+    padding: 10px 20px;
+    transition: all 0.2s ease-in-out; /* Animasi hover yang halus */
+}
+
+.btn:hover {
+    transform: translateY(-2px); /* Efek sedikit terangkat saat disentuh cursor */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* 5. Tabel yang Bersih dan Modern */
+.table {
+    border-color: #dee2e6;
+}
+
+.table thead th {
+    font-weight: 700;
+    text-transform: uppercase; /* Judul kolom huruf besar */
+    letter-spacing: 0.5px;
+    background-color: #fff !important; /* Hilangkan background gelap default DataTables */
+    color: #6c757d; /* Warna teks header abu-abu */
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table tbody td {
+    vertical-align: middle; /* Teks di tengah secara vertikal */
+    padding: 15px;
+}
+
+/* 6. Desain Badge yang Halus */
+.badge {
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+
+/* 7. Kustomisasi Navigasi & Footer */
+.navbar {
+    padding: 1rem 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+footer {
+    background-color: #fff !important;
+    color: #6c757d !important;
+    border-top: 1px solid #dee2e6;
+    padding: 2rem 0 !important;
+    margin-top: 4rem !important;
+}
+
+/* 8. Kustomisasi Select2 agar sesuai tema */
+.select2-container--bootstrap-5 .select2-selection {
+    border-radius: 8px;
+    padding: 6px 12px;
+}
