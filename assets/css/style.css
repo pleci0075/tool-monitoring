@@ -1,5 +1,9 @@
 /* File: assets/css/style.css (Versi Baru) */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+
 /* 1. Pengaturan Font Global & Latar Belakang */
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
@@ -77,4 +81,172 @@ footer {
 .select2-container--bootstrap-5 .select2-selection {
     border-radius: 8px;
     padding: 6px 12px;
+}
+
+/* Style untuk baris header kategori di dalam tabel */
+.category-header {
+    background-color: #e9ecef; /* Warna latar abu-abu muda */
+    font-weight: 700;
+    color: #495057;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Style untuk Logo */
+.logo {
+    position: absolute;
+    top: 2.5rem;
+    left: 2.5rem;
+    height: 40px; /* Atur tinggi logo sesuai kebutuhan */
+    width: auto;
+}
+
+/* Style untuk Halaman Utama Baru (Versi 2) */
+.launchpad-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+.hero-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 6rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -3px;
+    text-align: left;
+}
+
+.hero-text span {
+    display: block;
+}
+
+/* Style untuk panel utama di sebelah kanan */
+.action-panel {
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    padding: 1.5rem 2rem;
+    transition: all 0.3s ease;
+}
+.action-panel:hover {
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+}
+
+/* Style untuk setiap item di dalam panel */
+.action-item {
+    display: flex; /* Membuat teks dan tombol sejajar */
+    justify-content: space-between; /* Memberi jarak maksimal antara teks dan tombol */
+    align-items: center;
+    padding: 1rem 0;
+}
+
+.action-text h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    font-size: 1.25rem;
+}
+
+.action-text p {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 0;
+}
+
+/* Tombol Aksi di dalam panel */
+.action-button {
+    /* Membuat tombol menjadi lingkaran */
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem; /* Ukuran ikon di dalam tombol */
+    flex-shrink: 0; /* Mencegah tombol menyusut */
+    margin-left: 1.5rem;
+}
+
+/* Garis pemisah antar item */
+.action-divider {
+    margin: 0;
+    border-color: #f1f3f5;
+}
+
+/* Style untuk Kartu Statistik di Dashboard */
+.stat-card {
+    background-color: #a9cbd1;
+    border-left: 5px solid #485464; /* Kembali menggunakan border samping */
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+.stat-card p {
+    margin: 0;
+    color: #6c757d;
+    font-weight: 600;
+}
+.stat-card h3 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #212529; /* Warna teks kembali gelap */
+}
+
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu .dropdown-menu {
+    top: 0;
+    left: 100%; /* Muncul di sebelah kanan */
+    margin-top: -1px;
+    margin-left: -1px;
+    display: none;
+}
+
+.dropdown-submenu:hover > .dropdown-menu {
+    display: block;
+}
+
+/* Jaga agar panah toggle tetap terlihat */
+.dropdown-submenu > a::after {
+    display: block;
+    content: " ";
+    float: right;
+    width: 0;
+    height: 0;
+    border-color: transparent;
+    border-style: solid;
+    border-width: 5px 0 5px 5px;
+    border-left-color: currentColor;
+    margin-top: 5px;
+    margin-right: -10px;
+}
+
+/* ======================================= */
+/* FIX TAMPILAN MODAL PADA DARK MODE       */
+/* ======================================= */
+
+/* Mengatur warna teks default di dalam body modal */
+[data-bs-theme="dark"] .modal-body {
+    color: var(--bs-body-color);
+}
+
+/* Mengatur tampilan kolom input */
+[data-bs-theme="dark"] .modal-body .form-control,
+[data-bs-theme="dark"] .modal-body .form-select {
+    color: #dee2e6; /* Warna teks terang */
+    background-color: #343a40; /* Warna latar input sedikit lebih terang dari body modal */
+    border-color: #6c757d;
+}
+
+/* Mengatur warna teks saat dropdown Select2 dibuka */
+.select2-container--bootstrap-5.select2-container--dark .select2-dropdown {
+    background-color: #202327;
+    border-color: #6c757d;
 }

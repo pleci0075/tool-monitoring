@@ -1,32 +1,32 @@
 <?php
-// File: process/process_delete_tool.php (Versi Final & Aman)
-
-require_once '../config/database.php';
+// File: process/delete_tool.php (Versi Final)
 
 session_start();
+require_once '../config/database.php';
 
-// Validasi token CSRF
+// Validasi CSRF dan Role Admin
 if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
     die('Error: Token CSRF tidak valid.');
+}
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header("Location: ../login.php"); // Path diperbaiki
+    exit(); // Titik koma ditambahkan
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['tool_id'])) {
     $tool_id = $_POST['tool_id'];
 
-    // HANYA hapus tool jika statusnya 'tersedia' untuk mencegah menghapus tool yang sedang dipinjam
     try {
         $sql = "DELETE FROM tools WHERE id = ? AND status = 'tersedia'";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$tool_id]);
 
         if ($stmt->rowCount() > 0) {
-            // Menggunakan notifikasi flash message
-            $_SESSION['flash_message'] = "Tool berhasil dihapus dari daftar.";
-            header("Location: ../index.php");
+            $_SESSION['flash_message'] = "Tool berhasil dihapus.";
         } else {
             $_SESSION['flash_message'] = "Gagal menghapus: Tool tidak ditemukan atau sedang dipinjam.";
-            header("Location: ../index.php");
         }
+        header("Location: ../manage_tools.php");
         exit();
         
     } catch (PDOException $e) {
