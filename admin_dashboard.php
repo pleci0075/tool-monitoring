@@ -16,21 +16,18 @@ require_once 'config/database.php';
 $total_tools = $pdo->query("SELECT COUNT(*) FROM tools")->fetchColumn();
 $borrowed_tools = $pdo->query("SELECT COUNT(*) FROM tools WHERE status = 'dipinjam'")->fetchColumn();
 $available_tools = $total_tools - $borrowed_tools;
+$damaged_tools = $pdo->query("SELECT COUNT(*) FROM tools WHERE status = 'Rusak'")->fetchColumn();
 
-$last_transactions = $pdo->query("
-    SELECT tl.tool_name, tr.borrow_date, 
-    (SELECT GROUP_CONCAT(m.name SEPARATOR ', ') FROM transaction_mechanics tm JOIN mechanics m ON tm.mechanic_id = m.id WHERE tm.transaction_id = tr.id) AS borrowers
-    FROM transactions tr JOIN tools tl ON tr.tool_id = tl.id ORDER BY tr.borrow_date DESC LIMIT 5
-")->fetchAll();
-
+// Data untuk Grafik Peminjaman Harian (7 Hari Terakhir)
 $chart_data = $pdo->query("
-    SELECT DATE_FORMAT(borrow_date, '%b %Y') AS month, COUNT(*) AS count 
+    SELECT DATE_FORMAT(borrow_date, '%d %b %Y') AS day, COUNT(*) AS count 
     FROM transactions 
-    WHERE borrow_date >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
-    GROUP BY month ORDER BY borrow_date ASC
+    WHERE borrow_date >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+    GROUP BY DATE(borrow_date)
+    ORDER BY DATE(borrow_date) ASC
 ")->fetchAll();
 
-$chart_labels = json_encode(array_column($chart_data, 'month'));
+$chart_labels = json_encode(array_column($chart_data, 'day'));
 $chart_values = json_encode(array_column($chart_data, 'count'));
 
 $pending_reports = $pdo->query("
@@ -65,18 +62,31 @@ $categories = ['Map/Bantex', 'Tool PPM', 'Tool PPU', 'Tool Sampling PAP', 'Tool 
 <?php endif; ?>
 
 <div class="row">
-    <div class="col-lg-4 mb-4"><div class="stat-card"><h3><?= $total_tools ?></h3><p>Total Tools</p></div></div>
-    <div class="col-lg-4 mb-4"><div class="stat-card"><h3><?= $available_tools ?></h3><p>Tools Tersedia</p></div></div>
-    <div class="col-lg-4 mb-4"><div class="stat-card"><h3><?= $borrowed_tools ?></h3><p>Tools Dipinjam</p></div></div>
+    <div class="col-lg-3 col-md-6 mb-4"><div class="stat-card"><h3><?= $total_tools ?></h3><p>Total Tools</p></div></div>
+    <div class="col-lg-3 col-md-6 mb-4"><div class="stat-card"><h3><?= $available_tools ?></h3><p>Tools Tersedia</p></div></div>
+    <div class="col-lg-3 col-md-6 mb-4"><div class="stat-card"><h3><?= $borrowed_tools ?></h3><p>Tools Dipinjam</p></div></div>
+    <div class="col-lg-3 col-md-6 mb-4"><div class="stat-card border-danger"><h3 class="text-danger" id="stat-damaged-tools"><?= $damaged_tools ?></h3><p>Tools Rusak</p></div></div>
 </div>
 
 <div class="row mt-2">
-    <div class="col-lg-7 mb-4"><div class="card"><div class="card-body"><h5 class="card-title">Aktivitas Peminjaman</h5><div id="borrowingsChart"></div></div></div></div>
-    <div class="col-lg-5 mb-4"><div class="card"><div class="card-body"><h5 class="card-title">Peminjaman Terakhir</h5><div class="table-responsive"><table class="table table-borderless table-sm"><tbody>
-        <?php foreach ($last_transactions as $trans): ?>
-        <tr><td><strong><?= htmlspecialchars($trans['tool_name']) ?></strong></td><td><span class="text-muted">Oleh:</span> <?= htmlspecialchars($trans['borrowers'] ?? 'N/A') ?></td><td class="text-end text-muted"><?= date('d M Y', strtotime($trans['borrow_date'])) ?></td></tr>
-        <?php endforeach; ?>
-    </tbody></table></div></div></div></div>
+    <div class="col-lg-7 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Aktivitas Peminjaman</h5>
+                <div id="borrowingsChart"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Aktivitas Terkini</h5>
+                <ul class="list-group list-group-flush" id="live-activity-feed">
+                    <li class="list-group-item">Memuat data...</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -84,43 +94,43 @@ document.addEventListener('DOMContentLoaded', function () {
     if (document.getElementById('borrowingsChart')) {
         var options = {
             chart: {
-                type: 'area', // Tipe grafik
+                type: 'area',
                 height: 350,
-                toolbar: { show: false }, // Sembunyikan toolbar default
-                foreColor: '#adb5bd', // Warna teks untuk sumbu (sesuai dark mode)
+                toolbar: { show: false },
                 zoom: { enabled: false }
             },
             series: [{
                 name: 'Jumlah Peminjaman',
-                data: <?= $chart_values ?> // Mengambil data jumlah dari PHP
+                data: <?= $chart_values ?>
             }],
             xaxis: {
-                categories: <?= $chart_labels ?> // Mengambil data label bulan dari PHP
+                type: 'category', // Tipe sumbu X adalah kategori/teks
+                categories: <?= $chart_labels ?> // Label dari query PHP
             },
-            dataLabels: { 
-                enabled: false // Sembunyikan label angka di setiap titik
+            yaxis: {
+                title: {
+                    text: 'Jumlah Peminjaman'
+                },
+                min: 0, // Mulai dari 0
+                forceNiceScale: true // Membuat skala angka menjadi lebih 'bulat'
             },
-            stroke: { 
-                curve: 'smooth', // Membuat garis menjadi melengkung
-                width: 2 
-            },
-            grid: {
-                borderColor: '#495057', // Warna garis grid
-                strokeDashArray: 5      // Membuat garis grid menjadi putus-putus
-            },
+            dataLabels: { enabled: false },
+            stroke: { curve: 'smooth', width: 3 },
+            colors: ['#212529'], // Tema monokrom hitam
             fill: {
                 type: "gradient",
                 gradient: {
                     shadeIntensity: 1,
-                    opacityFrom: 0.4,
+                    opacityFrom: 0.5,
                     opacityTo: 0.1,
                 }
             },
-            tooltip: { 
-                theme: 'dark' // Menggunakan tooltip tema gelap
+            tooltip: {
+                x: {
+                    format: 'dd MMM yyyy' // Format tooltip saat di-hover
+                },
             }
         };
-        
         var chart = new ApexCharts(document.querySelector("#borrowingsChart"), options);
         chart.render();
     }

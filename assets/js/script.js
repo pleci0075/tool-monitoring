@@ -40,6 +40,65 @@ $(document).ready(function() {
         initSelect2($(this).find('.select-category'), 'Pilih kategori', $(this));
     });
 
+    // ===================================================
+    // LOGIKA UNTUK REAL-TIME UPDATE DASHBOARD ADMIN
+    // ===================================================
+    if ($('#live-activity-feed').length) {
+        
+        function updateDashboardData() {
+            $.ajax({
+                url: 'api/dashboard_data.php',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                // Update kartu statistik (tetap sama)
+                $('#stat-total-tools').text(data.total_tools);
+                $('#stat-available-tools').text(data.available_tools);
+                $('#stat-borrowed-tools').text(data.borrowed_tools);
+                $('#stat-damaged-tools').text(data.damaged_tools);
+
+                // Update feed aktivitas terkini dengan desain yang diperbaiki
+                let activityFeed = $('#live-activity-feed');
+                activityFeed.empty(); // Kosongkan daftar lama
+
+                if (data.latest_activities && data.latest_activities.length > 0) {
+                    data.latest_activities.forEach(function(act) {
+                        
+                        // PERBAIKAN 1: Menggunakan format tanggal, bukan jam
+                        let eventDate = new Date(act.event_date).toLocaleDateString('id-ID', {
+                            day: 'numeric', month: 'short', year: 'numeric'
+                        });
+
+                        // PERBAIKAN 2: Mengembalikan ke desain 2 baris yang lebih jelas
+                        // dan mengatasi 'undefined'
+                        let listItem = `
+                            <li class="list-group-item px-0">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">${act.tool_name}</h6>
+                                    <small class="text-muted">${eventDate}</small>
+                                </div>
+                                <p class="mb-1 text-muted small">${act.action} <strong>${act.person}</strong></p>
+                            </li>
+                        `;
+                        activityFeed.append(listItem);
+                    });
+                } else {
+                    activityFeed.append('<li class="list-group-item px-0">Belum ada aktivitas terkini.</li>');
+                }
+            },
+                error: function(xhr, status, error) {
+                    console.error("Gagal mengambil data dashboard:", status, error);
+                    $('#live-activity-feed').html('<li class="list-group-item text-danger">Gagal memuat data.</li>');
+                }
+            });
+        }
+
+        // Panggil fungsi pertama kali saat halaman dimuat
+        updateDashboardData();
+        
+        // Atur interval untuk memanggil fungsi setiap 15 detik (15000 milidetik)
+        setInterval(updateDashboardData, 15000);
+    }
 
     // ===================================================
     // BAGIAN 2: EVENT LISTENER UNTUK SEMUA TOMBOL AKSI
